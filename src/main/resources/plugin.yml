@@ -1,0 +1,18 @@
+name: "WorldAccess"
+version: "1.0"
+main: "dev.worldaccess.WorldAccess"
+api-version: "26.1"
+description: "Admins can open or close access to worlds"
+commands:
+  worldaccess:
+    description: "World access control"
+    usage: "/worldaccess list"
+    aliases: [wa]
+    permission: "worldaccess.admin"
+permissions:
+  worldaccess.admin:
+    description: "Manage world access"
+    default: op
+  worldaccess.bypass:
+    description: "Enter closed worlds"
+    default: false
