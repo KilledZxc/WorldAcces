@@ -69,7 +69,7 @@ public class WorldAccess extends JavaPlugin implements Listener, TabExecutor {
     private void evacuate(World w) {
         for (Player p : new ArrayList<>(w.getPlayers())) {
             p.teleport(mainWorld().getSpawnLocation());
-            p.sendMessage(Component.text("Этот мир закрыт, тебя вернули на спавн.", NamedTextColor.YELLOW));
+            p.sendMessage(Component.text("This world is closed, you were sent back to spawn.", NamedTextColor.YELLOW));
         }
     }
 
@@ -96,7 +96,7 @@ public class WorldAccess extends JavaPlugin implements Listener, TabExecutor {
             long now = System.currentTimeMillis();
             if (now - msgCooldown.getOrDefault(p.getUniqueId(), 0L) > 2000) {
                 msgCooldown.put(p.getUniqueId(), now);
-                p.sendMessage(Component.text("Этот мир сейчас закрыт администратором.", NamedTextColor.RED));
+                p.sendMessage(Component.text("This world is currently closed by an admin.", NamedTextColor.RED));
             }
         }
     }
@@ -121,36 +121,36 @@ public class WorldAccess extends JavaPlugin implements Listener, TabExecutor {
     @Override
     public boolean onCommand(CommandSender s, Command c, String label, String[] a) {
         if (a.length == 0 || a[0].equalsIgnoreCase("list")) {
-            s.sendMessage(Component.text("Миры:", NamedTextColor.GOLD));
+            s.sendMessage(Component.text("Worlds:", NamedTextColor.GOLD));
             for (World w : Bukkit.getWorlds()) {
                 boolean closed = isLocked(w);
-                String note = w.equals(mainWorld()) ? " (главный, всегда открыт)" : "";
+                String note = w.equals(mainWorld()) ? " (main, always open)" : "";
                 s.sendMessage(Component.text(" " + w.getName() + " [" + w.getEnvironment() + "]: "
-                        + (closed ? "ЗАКРЫТ" : "открыт") + note,
+                        + (closed ? "CLOSED" : "open") + note,
                         closed ? NamedTextColor.RED : NamedTextColor.GREEN));
             }
-            s.sendMessage(Component.text("Команды: /wa <мир> on|off, /wa only <мир>, /wa all", NamedTextColor.GRAY));
+            s.sendMessage(Component.text("Commands: /wa <world> on|off, /wa only <world>, /wa all", NamedTextColor.GRAY));
             return true;
         }
 
         if (a[0].equalsIgnoreCase("all")) {
             locked.clear();
             save();
-            s.sendMessage(Component.text("Все миры открыты.", NamedTextColor.GREEN));
+            s.sendMessage(Component.text("All worlds are open.", NamedTextColor.GREEN));
             return true;
         }
 
         if (a[0].equalsIgnoreCase("only") && a.length >= 2) {
             List<World> keep = resolve(a[1]);
             if (keep.isEmpty()) {
-                s.sendMessage(Component.text("Мир не найден: " + a[1], NamedTextColor.RED));
+                s.sendMessage(Component.text("World not found: " + a[1], NamedTextColor.RED));
                 return true;
             }
             for (World w : Bukkit.getWorlds()) {
                 setLocked(w, !keep.contains(w));
             }
             save();
-            s.sendMessage(Component.text("Открыты только: главный мир + "
+            s.sendMessage(Component.text("Only open: main world + "
                     + keep.stream().map(World::getName).collect(Collectors.joining(", ")), NamedTextColor.GREEN));
             return true;
         }
@@ -158,29 +158,29 @@ public class WorldAccess extends JavaPlugin implements Listener, TabExecutor {
         if (a.length >= 2) {
             List<World> targets = resolve(a[0]);
             if (targets.isEmpty()) {
-                s.sendMessage(Component.text("Мир не найден: " + a[0], NamedTextColor.RED));
+                s.sendMessage(Component.text("World not found: " + a[0], NamedTextColor.RED));
                 return true;
             }
             boolean on = a[1].equalsIgnoreCase("on");
             boolean off = a[1].equalsIgnoreCase("off");
             if (!on && !off) {
-                s.sendMessage(Component.text("Укажи on (открыть) или off (закрыть).", NamedTextColor.RED));
+                s.sendMessage(Component.text("Specify on (open) or off (close).", NamedTextColor.RED));
                 return true;
             }
             for (World w : targets) {
                 if (w.equals(mainWorld())) {
-                    s.sendMessage(Component.text("Главный мир " + w.getName() + " закрыть нельзя.", NamedTextColor.RED));
+                    s.sendMessage(Component.text("Main world " + w.getName() + " cannot be closed.", NamedTextColor.RED));
                     continue;
                 }
                 setLocked(w, off);
-                s.sendMessage(Component.text("Мир " + w.getName() + ": " + (on ? "открыт" : "закрыт"),
+                s.sendMessage(Component.text("World " + w.getName() + ": " + (on ? "open" : "closed"),
                         on ? NamedTextColor.GREEN : NamedTextColor.RED));
             }
             save();
             return true;
         }
 
-        s.sendMessage(Component.text("Использование: /wa list | /wa <мир> on|off | /wa only <мир> | /wa all", NamedTextColor.RED));
+        s.sendMessage(Component.text("Usage: /wa list | /wa <world> on|off | /wa only <world> | /wa all", NamedTextColor.RED));
         return true;
     }
 
